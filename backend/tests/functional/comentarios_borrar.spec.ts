@@ -123,6 +123,19 @@ test.group('DELETE /comentarios/:id', (group) => {
     assert.isTrue(await existeComentario(9101))
   })
 
+  test('responde 403 con el correo vacío', async ({ client, assert }) => {
+    // Arrange
+    await db.table('comentarios').insert(unComentario())
+
+    // Act
+    const respuesta = await client.delete('/comentarios/9101').json({ autor_email: '' })
+
+    // Assert
+    respuesta.assertStatus(403)
+    assert.deepEqual(respuesta.body(), { error: 'No puedes borrar este comentario' })
+    assert.isTrue(await existeComentario(9101))
+  })
+
   test('responde 403 con una clave equivocada', async ({ client, assert }) => {
     // Arrange
     await db.table('comentarios').insert(unComentario())

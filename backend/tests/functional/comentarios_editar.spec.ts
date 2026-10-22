@@ -140,6 +140,21 @@ test.group('PATCH /comentarios/:id', (group) => {
     assert.equal(await cuerpoGuardado(9101), 'Un comentario ya guardado.')
   })
 
+  test('responde 400 si el cuerpo llega vacío', async ({ client, assert }) => {
+    // Arrange
+    await db.table('comentarios').insert(unComentario())
+
+    // Act
+    const respuesta = await client
+      .patch('/comentarios/9101')
+      .json({ autor_email: 'lucia.ferrer@ejemplo.es', cuerpo: '' })
+
+    // Assert
+    respuesta.assertStatus(400)
+    assert.deepEqual(respuesta.body(), { error: 'Falta el cuerpo' })
+    assert.equal(await cuerpoGuardado(9101), 'Un comentario ya guardado.')
+  })
+
   test('el 403 gana a la falta de cuerpo', async ({ client, assert }) => {
     // Arrange
     await db.table('comentarios').insert(unComentario())
